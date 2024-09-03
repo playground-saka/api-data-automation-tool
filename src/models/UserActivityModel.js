@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 import User from './UserModel.js';
 
-const UserActivityModel = db.define('user_activity', {
+const UserActivityModel = Database.define('user_activity', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

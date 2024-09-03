@@ -1,9 +1,9 @@
 import { DataTypes } from "sequelize";
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 import PelangganModel from "./PelangganModel.js";
 import FactLogsheetManualModel from "./FactLogsheetManualModel.js";
 
-const LogsheetManualSistemAggregateModel = db.define(
+const LogsheetManualSistemAggregateModel = Database.define(
   "logsheet_manual_sistem_aggregate",
   {
     id: {
