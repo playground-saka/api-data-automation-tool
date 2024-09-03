@@ -1,0 +1,92 @@
+name: API - Data Automation Tools
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.15.1'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run ESLint
+      run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.15.1'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/daman-api:latest
+  
+  deploy-to-vps:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+
+    steps:
+    - name: SSH and deploy to VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        password: ${{ secrets.VPS_PASSWORD }}
+        port: ${{ secrets.VPS_PORT }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/daman-api:latest
+
+          if docker ps -a --format '{{.Names}}' | grep -q '^daman-api$'; then
+            docker stop daman-api
+            docker rm daman-api
+          fi
+
+          docker system prune -f
+
+          docker run --name daman-api -dit \
+            -p 8135:8135 \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            ${{ secrets.DOCKERHUB_USERNAME }}/daman-api:latest
