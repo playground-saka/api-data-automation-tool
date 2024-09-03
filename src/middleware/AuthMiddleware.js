@@ -1,5 +1,3 @@
-// renaming the file from A to a
-
 import jsonwebtoken from 'jsonwebtoken';
 
 const AuthMiddleware = (req, res, next) => {
