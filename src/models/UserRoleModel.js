@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 import User from './UserModel.js';
 import RoleModel from './RoleModel.js';
 
-const UserRoleModel = db.define('user_roles', {
+const UserRoleModel = Database.define('user_roles', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

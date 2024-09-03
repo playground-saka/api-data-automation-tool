@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 import RoleModel from './RoleModel.js';
 import Permission from './PermissionModel.js';
 
-const RolePermission = db.define('role_permissions', {
+const RolePermission = Database.define('role_permissions', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

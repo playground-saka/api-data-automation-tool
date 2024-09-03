@@ -1,8 +1,9 @@
 import express from "express";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
-import Database from "./src/configs/database.js";
 import cors from "cors";
+
+import Database from "./src/configs/Database.js";
 
 // Import all models
 import "./src/models/UserModel.js";

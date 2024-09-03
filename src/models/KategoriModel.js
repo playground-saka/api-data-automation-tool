@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 
-const KategoriModel = db.define(
+const KategoriModel = Database.define(
     "kategori",
     {
         id: {

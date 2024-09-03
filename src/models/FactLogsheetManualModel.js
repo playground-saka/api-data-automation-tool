@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-import db from "../configs/database.js";
+import Database from "../configs/Database.js";
 import PelangganModel from "./PelangganModel.js";
 
-const FactLogsheetManualModel = db.define(
+const FactLogsheetManualModel = Database.define(
   "fact_logsheet_manual",
   {
     id: {
