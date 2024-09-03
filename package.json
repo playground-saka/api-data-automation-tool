@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "dev": "nodemon index.js",
     "lint": "eslint ."
   },
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "eslint": "^9.9.1",
-    "globals": "^15.9.0"
+    "globals": "^15.9.0",
+    "mocha": "^10.7.3"
   }
 }
