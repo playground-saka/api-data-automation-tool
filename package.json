@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "lint": "eslint ."
   },
   "author": "Abdillah Mufki",
   "license": "ISC",
@@ -24,5 +25,8 @@
     "sequelize-cli": "^6.6.2",
     "xlsx": "^0.18.5",
     "xlsx-style": "^0.8.13"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.1"
   }
 }
