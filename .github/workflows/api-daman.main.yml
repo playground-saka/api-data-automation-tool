@@ -88,5 +88,8 @@ jobs:
 
           docker run --name daman-api -dit \
             -p 8135:8135 \
+            -e PORT=${{ secrets.PORT }} \
+            -e APP_URL=${{ secrets.APP_URL }} \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/daman-api:latest
