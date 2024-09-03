@@ -60,9 +60,9 @@ export const getLogsheetStatus = async (req, res) => {
 
 export const createLogsheetStatus = async (req, res) => {
   try {
-    const { fullDate, pelangganId, logsheetManual, logsheetSistem } = req.body;
+    const { fullDate, logsheetManual, logsheetSistem } = req.body;
 
-    const [years, month, date] = fullDate.split("-");
+    const [years, month ] = fullDate.split("-");
 
     const pelanggans = await PelangganModel.findAll({
       attributes: ["id", "pelangganId"],

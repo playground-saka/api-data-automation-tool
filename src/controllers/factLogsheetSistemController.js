@@ -246,7 +246,7 @@ export const importFactLogsheetSistem = async (req, res) => {
 
     // Transform the grouped data using the formula
     const results = transformData(groupedData, formula);
-    const logsheermanualsistemdiff = updateLogsheetDifference(results, pelangganId);
+    updateLogsheetDifference(results, pelangganId);
 
     res.status(201).json({ message: 'Data processed and inserted successfully!' });
   } catch (error) {

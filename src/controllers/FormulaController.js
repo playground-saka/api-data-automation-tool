@@ -57,7 +57,7 @@ export const getFormulaById = async (req, res) => {
 // Update a FormulaModel record by ID
 export const updateFormula = async (req, res) => {
   try {
-    const { faktorArus, faktorTegangan } = req.body;
+    const { faktorArus, faktorTegangan, faktorPower } = req.body;
     const formula = await FormulaModel.findByPk(req.params.id);
     if (formula) {
       formula.faktorArus = faktorArus;

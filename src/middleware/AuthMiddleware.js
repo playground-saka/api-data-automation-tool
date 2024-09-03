@@ -12,7 +12,7 @@ const AuthMiddleware = (req, res, next) => {
         const verified = jsonwebtoken.verify(token, process.env.JWT_SECRET);
         req.user = verified; 
         next();
-    } catch (error) {
+    } catch {
         res.status(400).json({ error: "Invalid token" });
     }
 };

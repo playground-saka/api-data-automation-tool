@@ -165,7 +165,7 @@ export const downloadLaporanSelisih = async (req, res) => {
       pelangganId: pelanggan_id,
     };
 
-    const { count, rows } =
+    const { rows } =
       await LogsheetManualSistemAggregateModel.findAndCountAll({
         include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
         where: whereConditions,
