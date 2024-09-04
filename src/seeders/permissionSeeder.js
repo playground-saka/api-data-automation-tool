@@ -1,5 +1,5 @@
 import Permission from "../models/PermissionModel.js";
-import Database from "../configs/database.js";
+import Database from "../configs/Database.js";
 
 const permissionSeeder = async () => {
   try {

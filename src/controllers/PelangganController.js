@@ -108,28 +108,54 @@ export const getDimPelangganById = async (req, res) => {
 // Update
 export const updateDimPelanggan = async (req, res) => {
   try {
-    const pelanggan = await PelangganModel.findByPk(req.params.id);
-    if (pelanggan) {
-      await pelanggan.update(req.body);
-      res.status(200).json(pelanggan);
-    } else {
-      res.status(404).json({ message: "PelangganModel not found" });
+    const { id } = req.params;
+    const { namaPelanggan, kategoriId, statusPelanggan, pelangganId } =
+      req.body;
+
+    // Validate required fields
+    if (!kategoriId || !statusPelanggan) {
+      return res.status(400).json({
+        message: "kategoriId and statusPelanggan are required",
+      });
     }
+
+    // Find the pelanggan by ID
+    const pelanggan = await PelangganModel.findByPk(id);
+
+    // Check if pelanggan exists
+    if (!pelanggan) {
+      return res.status(404).json({ message: "Pelanggan not found" });
+    }
+
+    // Update pelanggan fields
+    pelanggan.namaPelanggan = namaPelanggan;
+    pelanggan.kategoriId = kategoriId;
+    pelanggan.statusPelanggan = statusPelanggan;
+    pelanggan.pelangganId = pelangganId;
+
+    // Save the updated pelanggan
+    await pelanggan.save();
+
+    res.status(200).json(pelanggan);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 // Delete
 export const deleteDimPelanggan = async (req, res) => {
   try {
-    const pelanggan = await PelangganModel.findByPk(req.params.id);
-    if (pelanggan) {
-      await pelanggan.destroy();
-      res.status(204).json({ message: "PelangganModel deleted" });
-    } else {
-      res.status(404).json({ message: "PelangganModel not found" });
+    const { id } = req.params;
+
+    const pelanggan = await PelangganModel.findByPk(id);
+
+    if (!pelanggan) {
+      return res.status(404).json({ message: "PelangganModel not found" });
     }
+
+    await pelanggan.destroy();
+
+    res.status(200).json({ message: "PelangganModel deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

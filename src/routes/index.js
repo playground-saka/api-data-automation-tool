@@ -1,5 +1,10 @@
 import express from "express";
-import { login, getUsers } from "../controllers/AuthController.js";
+import {
+  login,
+  getUsers,
+  deleteUser,
+  updateUser,
+} from "../controllers/AuthController.js";
 import {
   createFormula,
   getFormulas,
@@ -51,6 +56,7 @@ import {
 import {
   createLogsheetStatus,
   getLogsheetStatus,
+  detailLogsheetStatus,
 } from "../controllers/LogsheetStatusController.js";
 
 // fix the ERR_MODULE_NOT_FOUND on container
@@ -61,7 +67,10 @@ import {
   laporanSistem,
   laporanManual,
   laporanSelisih,
-  downloadLaporanSelisih
+  downloadLaporanSelisih,
+  laporanGrafikSistem,
+  laporanGrafikManual,
+  laporanGrafikSelisih
 } from "../controllers/LaporanController.js";
 
 const router = express.Router();
@@ -69,6 +78,8 @@ const router = express.Router();
 // Auth routes
 router.get("/users", getUsers);
 router.post("/login", login);
+router.put("/user/:id", AuthMiddleware, updateUser);
+router.delete("/user/:id", AuthMiddleware, deleteUser);
 
 // Formula routes
 router.post("/formula", AuthMiddleware, createFormula);
@@ -155,10 +166,14 @@ router.delete("/dim-kategori/:id", deleteDimKategori);
 
 router.post("/logsheet-status", AuthMiddleware, createLogsheetStatus);
 router.get("/logsheet-status", AuthMiddleware, getLogsheetStatus);
+router.get("/logsheet-status/detail/:id", AuthMiddleware, detailLogsheetStatus);
 
 router.get("/laporan-sistem", AuthMiddleware, laporanSistem);
 router.get("/laporan-manual", AuthMiddleware, laporanManual);
 router.get("/laporan-selisih", AuthMiddleware, laporanSelisih);
 router.get("/download-selisih", AuthMiddleware, downloadLaporanSelisih);
+router.get("/laporan-grafik-sistem", AuthMiddleware, laporanGrafikSistem);
+router.get("/laporan-grafik-manual", AuthMiddleware, laporanGrafikManual);
+router.get("/laporan-grafik-selisih", AuthMiddleware, laporanGrafikSelisih);
 
 export default router;

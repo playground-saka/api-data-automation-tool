@@ -58,11 +58,46 @@ export const getLogsheetStatus = async (req, res) => {
   }
 };
 
+export const detailLogsheetStatus = async (req, res) => {
+  try {
+    const logsheetStatus = await LogsheetStatusModel.findByPk(req.params.id, {
+      attributes: { exclude: ["pelangganId", "createdAt", "updatedAt"] },
+      include: [
+        {
+          model: PelangganModel,
+          as: "pelanggan",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: KategoriModel,
+              as: "kategori",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (logsheetStatus) {
+      res.json(logsheetStatus);
+    } else {
+      res.status(404).json({ message: "Logsheet status not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching logsheet status:", error);
+    res.status(500).json({ error: "Error fetching logsheet status" });
+  }
+};
+
 export const createLogsheetStatus = async (req, res) => {
   try {
     const { fullDate, logsheetManual, logsheetSistem } = req.body;
 
-    const [years, month ] = fullDate.split("-");
+    const [years, month] = fullDate.split("-");
 
     const pelanggans = await PelangganModel.findAll({
       attributes: ["id", "pelangganId"],

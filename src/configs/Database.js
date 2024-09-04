@@ -27,18 +27,6 @@ const Database = new Sequelize(DATABASE_URL, {
 //   }
 // );
 
-// staging
-// const DATABASE_URL = process.env.DATABASE_URL;
-
-// const Database = new Sequelize(DATABASE_URL, {
-//   dialect: 'postgres',
-//   protocol: 'postgres',
-//   logging: false, // Set to true if you want to see the SQL queries in the console
-//   dialectOptions: {
-//     // Additional options like SSL can be configured here if needed
-//   },
-// });
-
 Database
   .authenticate()
   .then(() => console.log("Database connected..."))

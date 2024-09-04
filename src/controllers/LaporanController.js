@@ -93,7 +93,6 @@ export const laporanSelisih = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.per_page) || 10;
 
-    // Fetch the data with pagination
     const { count, rows } =
       await LogsheetManualSistemAggregateModel.findAndCountAll({
         include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
@@ -153,7 +152,7 @@ export const laporanSelisih = async (req, res) => {
 export const downloadLaporanSelisih = async (req, res) => {
   try {
     const download = req.query.download === "true";
-    const { pelanggan_id } = req.query;
+    const { pelanggan_id, date } = req.query;
 
     if (!pelanggan_id) {
       return res.status(400).json({
@@ -165,11 +164,20 @@ export const downloadLaporanSelisih = async (req, res) => {
       pelangganId: pelanggan_id,
     };
 
-    const { rows } =
-      await LogsheetManualSistemAggregateModel.findAndCountAll({
-        include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
-        where: whereConditions,
-      });
+    if (date) {
+      const [month, year] = date.split("-");
+      whereConditions.dateTime = {
+        [Op.between]: [
+          new Date(`${year}-${month}-01T00:00:00.000Z`),
+          new Date(`${year}-${month}-31T23:59:59.999Z`),
+        ],
+      };
+    }
+
+    const { rows } = await LogsheetManualSistemAggregateModel.findAndCountAll({
+      include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
+      where: whereConditions,
+    });
 
     const formattedData = rows.map((item) => {
       const date = new Date(item.dateTime);
@@ -248,6 +256,196 @@ export const downloadLaporanSelisih = async (req, res) => {
     res.status(200).json({
       data: formattedData,
     });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const laporanGrafikSistem = async (req, res) => {
+  try {
+    const dataSistem = await FactLogsheetSistemModel.findAndCountAll();
+
+    let monthlyData = new Map();
+
+    dataSistem.rows.forEach((item) => {
+      const date = new Date(item.dateTime);
+      const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
+
+      if (!monthlyData.has(monthYear)) {
+        monthlyData.set(monthYear, {
+          totalVoltageR: 0,
+          totalVoltageS: 0,
+          totalVoltageT: 0,
+          totalCurrentR: 0,
+          totalCurrentS: 0,
+          totalCurrentT: 0,
+          totalPowerP: 0,
+          count: 0,
+        });
+      }
+
+      const data = monthlyData.get(monthYear);
+      data.totalCurrentR += item.currentR;
+      data.totalCurrentS += item.currentS;
+      data.totalCurrentT += item.currentT;
+      data.totalVoltageR += item.voltageR;
+      data.totalVoltageS += item.voltageS;
+      data.totalVoltageT += item.voltageT;
+      data.totalPowerP += item.whExport;
+      data.count += 1;
+    });
+
+    let resultData = [];
+
+    monthlyData.forEach((data, monthYear) => {
+      const averageCurrentS = data.totalCurrentS / data.count;
+      const averageCurrentR = data.totalCurrentR / data.count;
+      const averageCurrentT = data.totalCurrentT / data.count;
+
+      const averageVoltageS = data.totalVoltageS / data.count;
+      const averageVoltageR = data.totalVoltageR / data.count;
+      const averageVoltageT = data.totalVoltageT / data.count;
+
+      const averageWhExport = data.totalPowerP / data.count;
+
+      const voltage = (averageVoltageS + averageVoltageR + averageVoltageT) / 3;
+      const current = (averageCurrentS + averageCurrentR + averageCurrentT) / 3;
+
+      resultData.push({
+        date: monthYear,
+        voltage: voltage.toFixed(2),
+        current: current.toFixed(2),
+        whExport: averageWhExport.toFixed(2),
+      });
+    });
+
+    res.status(200).json(resultData);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const laporanGrafikManual = async (req, res) => {
+  try {
+    const dataManual = await FactLogsheetManualModel.findAndCountAll();
+
+    let monthlyData = new Map();
+
+    dataManual.rows.forEach((item) => {
+      const date = new Date(item.dateTime);
+      const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
+
+      if (!monthlyData.has(monthYear)) {
+        monthlyData.set(monthYear, {
+          totalVoltageRS: 0,
+          totalVoltageST: 0,
+          totalVoltageTR: 0,
+          totalCurrentR: 0,
+          totalCurrentS: 0,
+          totalCurrentT: 0,
+          totalPowerP: 0,
+          count: 0,
+        });
+      }
+
+      const data = monthlyData.get(monthYear);
+      data.totalCurrentR += item.currentR;
+      data.totalCurrentS += item.currentS;
+      data.totalCurrentT += item.currentT;
+      data.totalVoltageRS += item.voltageRS;
+      data.totalVoltageST += item.voltageST;
+      data.totalVoltageTR += item.voltageTR;
+      data.totalPowerP += item.totalPowerP;
+      data.count += 1;
+    });
+
+    let resultData = [];
+
+    monthlyData.forEach((data, monthYear) => {
+      const averageCurrentS = data.totalCurrentS / data.count;
+      const averageCurrentR = data.totalCurrentR / data.count;
+      const averageCurrentT = data.totalCurrentT / data.count;
+
+      const averageVoltageST = data.totalVoltageST / data.count;
+      const averageVoltageRS = data.totalVoltageRS / data.count;
+      const averageVoltageTR = data.totalVoltageTR / data.count;
+
+      const averagePowerP = data.totalPowerP / data.count;
+
+      const voltage =
+        (averageVoltageST + averageVoltageRS + averageVoltageTR) / 3;
+      const current = (averageCurrentS + averageCurrentR + averageCurrentT) / 3;
+
+      resultData.push({
+        date: monthYear,
+        voltage: voltage.toFixed(2),
+        current: current.toFixed(2),
+        totalPowerP : averagePowerP.toFixed(2),
+      });
+    });
+
+    res.status(200).json(resultData);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const laporanGrafikSelisih = async (req, res) => {
+  try {
+    const data = await LogsheetManualSistemAggregateModel.findAndCountAll({
+      include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
+    });
+
+    let monthlyData = new Map();
+
+    data.rows.forEach((item) => {
+      const date = new Date(item.dateTime);
+      const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
+
+      if (!monthlyData.has(monthYear)) {
+        monthlyData.set(monthYear, {
+          totalSelisihPowerP: 0,
+          totalSelisihCurrentR: 0,
+          totalSelisihVoltageRS: 0,
+          count: 0,
+        });
+      }
+
+      const data = monthlyData.get(monthYear);
+      data.totalSelisihPowerP += parseFloat(
+        item.whExportHourly - item.logsheetManual.totalPowerP
+      );
+      data.totalSelisihCurrentR += parseFloat(
+        item.currentRHourly - item.logsheetManual.currentR
+      );
+      data.totalSelisihVoltageRS += parseFloat(
+        item.voltageRHourly - item.logsheetManual.voltageRS
+      );
+      data.count += 1;
+    });
+
+    let resultData = [];
+
+    monthlyData.forEach((data, monthYear) => {
+      const averageSelisihPowerP = (
+        data.totalSelisihPowerP / data.count
+      ).toFixed(2);
+      const averageSelisihCurrentR = (
+        data.totalSelisihCurrentR / data.count
+      ).toFixed(2);
+      const averageSelisihVoltageRS = (
+        data.totalSelisihVoltageRS / data.count
+      ).toFixed(2);
+
+      resultData.push({
+        date: monthYear,
+        selisihPowerP: averageSelisihPowerP,
+        selisihCurrentR: averageSelisihCurrentR,
+        selisihVoltageRS: averageSelisihVoltageRS,
+      });
+    });
+
+    res.status(200).json(resultData);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

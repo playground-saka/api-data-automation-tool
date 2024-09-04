@@ -1,5 +1,5 @@
 import RolePermission from "../models/RolePermissionModel.js";
-import Database from "../configs/database.js";
+import Database from "../configs/Database.js";
 
 const rolePermissionSeeder = async () => {
   try {

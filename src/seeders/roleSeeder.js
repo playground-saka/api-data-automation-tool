@@ -1,5 +1,5 @@
 import RoleModel from "../models/RoleModel.js";
-import Database from "../configs/database.js";
+import Database from "../configs/Database.js";
 
 const roleSeeder = async () => {
   try {

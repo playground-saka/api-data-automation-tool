@@ -1,14 +1,11 @@
 import bcrypt from 'bcryptjs';
 import UserModel from '../models/UserModel.js';
-import Database from '../configs/database.js';
+import Database from '../configs/Database.js';
 
 const seedAdmin = async () => {
   try {
     await Database.authenticate();
     console.log("Database connected...");
-
-    // await UserModel.destroy({ where: { email: 'admin@example.com' } });
-    // console.log("Existing admin user deleted.");
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
