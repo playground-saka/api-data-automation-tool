@@ -34,9 +34,9 @@ app.use(express.json()); // Make sure this is before router
 const startServer = async () => {
   try {
     await Database.authenticate();
-    console.log(
-      "Connection to the database has been established successfully."
-    );
+    // console.log(
+    //   "Connection to the database has been established successfully."
+    // );
 
     // await Database.sync({ alter: true, force: true }); 
     // console.log("Database Synced");
