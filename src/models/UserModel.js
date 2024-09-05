@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import Database from '../configs/Database.js';
+// import { user } from 'pg/lib/defaults.js';
 
 const UserModel = Database.define('users', {
     id: {
@@ -8,6 +9,10 @@ const UserModel = Database.define('users', {
         primaryKey: true,
     },
     username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    fullName: {
         type: DataTypes.STRING,
         allowNull: false,
     },

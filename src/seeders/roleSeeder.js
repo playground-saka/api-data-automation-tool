@@ -6,9 +6,6 @@ const roleSeeder = async () => {
     await Database.authenticate();
     console.log("Database connected...");
 
-    // await RoleModel.destroy({ where: { roleName: 'aadmin' } });
-    // console.log("Existing admin user deleted.");
-
     const adminRole = await RoleModel.create({
       roleName: "admin",
       description: "Admin role",

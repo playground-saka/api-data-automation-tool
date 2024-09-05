@@ -13,6 +13,7 @@ const seedAdmin = async () => {
 
     const admin = await UserModel.create({
       username: 'admin',
+      fullName: 'admin',
       email: 'admin@gmail.com',
       password: passwordHash,
       isActive: true,

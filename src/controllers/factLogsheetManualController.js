@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import LogsheetManualSistemAggregateModel from "../models/LogsheetManualSistemAggregateModel.js";
 import LogsheetStatusModel from "../models/LogsheetStatusModel.js";
+import { toNumberOrZero } from "../utils/helper.js";
 
 // get __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -65,16 +66,16 @@ export const importFactLogsheetManual = async (req, res) => {
         const logManual = await FactLogsheetManualModel.create({
           dateTime: formattedDateTime,
           pelangganId: pelangganId,
-          totalPowerP: item.__EMPTY_1,
-          totalPowerQ: item.__EMPTY_2,
-          powerFactor: item.__EMPTY_3,
-          frequency: item.__EMPTY_4,
-          currentR: item.__EMPTY_5,
-          currentS: item.__EMPTY_6,
-          currentT: item.__EMPTY_7,
-          voltageRS: item.__EMPTY_8,
-          voltageST: item.__EMPTY_9,
-          voltageTR: item.__EMPTY_10
+          totalPowerP: toNumberOrZero(item.__EMPTY_1) || 0,
+          totalPowerQ: toNumberOrZero(item.__EMPTY_2) || 0,
+          powerFactor: toNumberOrZero(item.__EMPTY_3) || 0,
+          frequency: toNumberOrZero(item.__EMPTY_4) || 0,
+          currentR: toNumberOrZero(item.__EMPTY_5) || 0,
+          currentS: toNumberOrZero(item.__EMPTY_6) || 0,
+          currentT: toNumberOrZero(item.__EMPTY_7) || 0,
+          voltageRS: toNumberOrZero(item.__EMPTY_8) || 0,
+          voltageST: toNumberOrZero(item.__EMPTY_9) || 0,
+          voltageTR: toNumberOrZero(item.__EMPTY_10) || 0
         });
 
         // Check if a record exists with the same dateTime

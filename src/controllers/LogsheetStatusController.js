@@ -4,29 +4,27 @@ import KategoriModel from "../models/KategoriModel.js";
 
 export const getLogsheetStatus = async (req, res) => {
   try {
-
-    const page = parseInt(req.query.page, 10) || 1; 
-    const perPage = parseInt(req.query.per_page, 10) || 10; 
-
+    const page = parseInt(req.query.page, 10) || 1;
+    const perPage = parseInt(req.query.per_page, 10) || 10;
+    const date = req.query.date; 
 
     const offset = (page - 1) * perPage;
 
-    // Fetch logsheet statuses with pagination
-    const { count, rows } = await LogsheetStatusModel.findAndCountAll({
+    const queryOptions = {
       attributes: { exclude: ["pelangganId"] },
       include: [
         {
           model: PelangganModel,
           as: "pelanggan",
           attributes: {
-            exclude: ["createdAt", "updatedAt"], 
+            exclude: ["createdAt", "updatedAt"],
           },
           include: [
             {
               model: KategoriModel,
               as: "kategori",
               attributes: {
-                exclude: ["createdAt", "updatedAt"], 
+                exclude: ["createdAt", "updatedAt"],
               },
             },
           ],
@@ -34,15 +32,38 @@ export const getLogsheetStatus = async (req, res) => {
       ],
       limit: perPage,
       offset: offset,
-    });
+    };
 
-    // Calculate pagination metadata
+    if (date) {
+      const [month, year] = date.split("-");
+      if (
+        !month ||
+        !year ||
+        isNaN(month) ||
+        isNaN(year) ||
+        month.length !== 2 ||
+        year.length !== 4
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Invalid date format. Use MM-YYYY format." });
+      }
+
+      queryOptions.where = {
+        month,
+        years: year,
+      };
+    }
+
+    const { count, rows } = await LogsheetStatusModel.findAndCountAll(
+      queryOptions
+    );
+
     const totalItems = count;
     const totalPages = Math.ceil(totalItems / perPage);
     const nextPage = page < totalPages ? page + 1 : null;
     const prevPage = page > 1 ? page - 1 : null;
 
-    // Send response with formatted data
     res.json({
       data: rows,
       current_page: page,
@@ -103,9 +124,36 @@ export const createLogsheetStatus = async (req, res) => {
       attributes: ["id", "pelangganId"],
     });
 
-    // Loop through each pelanggan and create a LogsheetStatusModel entry
+    const existingLogsheets = await LogsheetStatusModel.findAll({
+      where: {
+        month,
+        years,
+      },
+    });
+
+    if (existingLogsheets.length > 0) {
+      return res.status(400).json({
+        message: `Logsheet untuk bulan ${month} dan tahun ${years} sudah ada`,
+      });
+    }
+
     const logsheetStatuses = await Promise.all(
       pelanggans.map(async (pelanggan) => {
+
+        // Cek logsheet status has data where pelangganId, month, dan years
+        const existingLogsheetStatus = await LogsheetStatusModel.findOne({
+          where: {
+            pelangganId: pelanggan.id,
+            month,
+            years,
+          },
+        });
+
+        // if has data, skip this pelanggan
+        if (existingLogsheetStatus) {
+          res.status(409).json({ message: "Logsheet sudah ada" });
+        }
+
         return await LogsheetStatusModel.create({
           date: fullDate,
           month,
@@ -142,5 +190,66 @@ export const updateLogsheetStatus = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Error updating logsheet status", error });
+  }
+};
+
+export const filterLogsheetStatusByDate = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date parameter is required" });
+    }
+
+    const [month, year] = date.split("-");
+
+    if (
+      !month ||
+      !year ||
+      isNaN(month) ||
+      isNaN(year) ||
+      month.length !== 2 ||
+      year.length !== 4
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Invalid date format. Use MM-YYYY format." });
+    }
+
+    const logsheetStatuses = await LogsheetStatusModel.findAll({
+      where: {
+        month,
+        years: year,
+      },
+      include: [
+        {
+          model: PelangganModel,
+          as: "pelanggan",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: KategoriModel,
+              as: "kategori",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (logsheetStatuses.length === 0) {
+      return res.status(404).json({
+        message: "No logsheet found for the specified month and year",
+      });
+    }
+
+    res.json(logsheetStatuses);
+  } catch (error) {
+    console.error("Error fetching logsheet statuses by date:", error);
+    res.status(500).json({ error: "Error fetching logsheet statuses" });
   }
 };

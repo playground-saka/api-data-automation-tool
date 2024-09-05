@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import FormulaModel from "../models/FormulaModel.js";
 import LogsheetStatusModel from "../models/LogsheetStatusModel.js";
+import { toNumberOrZero } from "../utils/helper.js";
 
 // get __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -50,9 +51,9 @@ const groupByDateAndHour = (data) => {
 // calculate average and transform
 const transformData = (groupedData, formula) => {
 
-  const faktorTeganganExpression = formula.faktorTegangan; // e.g, "value * 200 * sqrt(3)"
+  const faktorTeganganExpression = formula.faktorTegangan; // e.g, "value * 80 / sqrt(3)"
   const faktorArusExpression = formula.faktorArus; // e.g, "value * 200 * sqrt(3)"
-  const faktorPowerExpression = formula.faktorPower; // e.g, "value * 200 * sqrt(3)"
+  const faktorPowerExpression = formula.faktorPower; // e.g, "value * 12000"
 
   // change value dynamics in sqrt dan placeholder value
   const evaluateFaktorTegangan = (value) => {
@@ -179,8 +180,8 @@ export const importFactLogsheetSistem = async (req, res) => {
     // Save new data to db
     const promises = data.map(async item => {
       // Check if the row contains valid data by looking for a valid date string
-      if (item.__EMPTY_1 && !isNaN(new Date(item.__EMPTY_1).getTime())) {
-        const rawDate = item.__EMPTY_1;
+      if (item.__EMPTY && !isNaN(new Date(item.__EMPTY).getTime())) {
+        const rawDate = item.__EMPTY;
         const date = new Date(rawDate);
         
         // Add 7 hours (UTC to Local)
@@ -200,18 +201,18 @@ export const importFactLogsheetSistem = async (req, res) => {
         await FactLogsheetSistemModel.create({
           dateTime: formattedDateTime,
           pelangganId: pelangganId,
-          voltageR: item.__EMPTY_2 || 0,
-          voltageS: item.__EMPTY_3 || 0,
-          voltageT: item.__EMPTY_4 || 0,
-          currentR: item.__EMPTY_5 || 0,
-          currentS: item.__EMPTY_6 || 0,
-          currentT: item.__EMPTY_7 || 0,
-          powerFactor: item.__EMPTY_8 || 0,
-          whExport: item.__EMPTY_9 || 0,
-          varhExport: item.__EMPTY_10 || 0,
-          whImport: item.__EMPTY_11 || 0,
-          varhImport: item.__EMPTY_12 || 0,
-          watt: item.__EMPTY_13 || 0
+          voltageR: toNumberOrZero(item.__EMPTY_2) || 0,
+          voltageS: toNumberOrZero(item.__EMPTY_3) || 0,
+          voltageT: toNumberOrZero(item.__EMPTY_4) || 0,
+          currentR: toNumberOrZero(item.__EMPTY_5) || 0,
+          currentS: toNumberOrZero(item.__EMPTY_6) || 0,
+          currentT: toNumberOrZero(item.__EMPTY_7) || 0,
+          powerFactor: toNumberOrZero(item.__EMPTY_8) || 0,
+          whExport: toNumberOrZero(item.__EMPTY_9) || 0,
+          varhExport: toNumberOrZero(item.__EMPTY_10) || 0,
+          whImport: toNumberOrZero(item.__EMPTY_11) || 0,
+          varhImport: toNumberOrZero(item.__EMPTY_12) || 0,
+          watt: toNumberOrZero(item.__EMPTY_13) || 0
         });
         
          // Todo : Update data logsheetManual in table logsheet_status
