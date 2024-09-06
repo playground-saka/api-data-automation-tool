@@ -298,15 +298,15 @@ export const laporanGrafikSistem = async (req, res) => {
     let resultData = [];
 
     monthlyData.forEach((data, monthYear) => {
-      const averageCurrentS = data.totalCurrentS / data.count;
-      const averageCurrentR = data.totalCurrentR / data.count;
-      const averageCurrentT = data.totalCurrentT / data.count;
+      const averageCurrentS = (data.totalCurrentS || 0) / (data.count || 1);
+      const averageCurrentR = (data.totalCurrentR || 0) / (data.count || 1);
+      const averageCurrentT = (data.totalCurrentT || 0) / (data.count || 1);
 
-      const averageVoltageS = data.totalVoltageS / data.count;
-      const averageVoltageR = data.totalVoltageR / data.count;
-      const averageVoltageT = data.totalVoltageT / data.count;
+      const averageVoltageS = (data.totalVoltageST || 0) / (data.count || 1);
+      const averageVoltageR = (data.totalVoltageRS || 0) / (data.count || 1);
+      const averageVoltageT = (data.totalVoltageTR || 0) / (data.count || 1);
 
-      const averageWhExport = data.totalPowerP / data.count;
+      const averageWhExport = (data.totalPowerP || 0) / (data.count || 1);
 
       const voltage = (averageVoltageS + averageVoltageR + averageVoltageT) / 3;
       const current = (averageCurrentS + averageCurrentR + averageCurrentT) / 3;
@@ -362,18 +362,19 @@ export const laporanGrafikManual = async (req, res) => {
     let resultData = [];
 
     monthlyData.forEach((data, monthYear) => {
-      const averageCurrentS = data.totalCurrentS / data.count;
-      const averageCurrentR = data.totalCurrentR / data.count;
-      const averageCurrentT = data.totalCurrentT / data.count;
+      const averageCurrentS = (data.totalCurrentS || 0) / (data.count || 1);
+      const averageCurrentR = (data.totalCurrentR || 0) / (data.count || 1);
+      const averageCurrentT = (data.totalCurrentT || 0) / (data.count || 1);
 
-      const averageVoltageST = data.totalVoltageST / data.count;
-      const averageVoltageRS = data.totalVoltageRS / data.count;
-      const averageVoltageTR = data.totalVoltageTR / data.count;
+      const averageVoltageST = (data.totalVoltageST || 0) / (data.count || 1);
+      const averageVoltageRS = (data.totalVoltageRS || 0) / (data.count || 1);
+      const averageVoltageTR = (data.totalVoltageTR || 0) / (data.count || 1);
 
-      const averagePowerP = data.totalPowerP / data.count;
+      const averagePowerP = (data.totalPowerP || 0) / (data.count || 1);
 
       const voltage =
         (averageVoltageST + averageVoltageRS + averageVoltageTR) / 3;
+      
       const current = (averageCurrentS + averageCurrentR + averageCurrentT) / 3;
 
       resultData.push({
@@ -412,16 +413,16 @@ export const laporanGrafikSelisih = async (req, res) => {
       }
 
       const data = monthlyData.get(monthYear);
-      data.totalSelisihPowerP += parseFloat(
-        item.whExportHourly - item.logsheetManual.totalPowerP
-      );
-      data.totalSelisihCurrentR += parseFloat(
-        item.currentRHourly - item.logsheetManual.currentR
-      );
-      data.totalSelisihVoltageRS += parseFloat(
-        item.voltageRHourly - item.logsheetManual.voltageRS
-      );
-      data.count += 1;
+        data.totalSelisihPowerP += parseFloat(
+          (item.whExportHourly - item.logsheetManual.totalPowerP) || 0
+        );
+        data.totalSelisihCurrentR += parseFloat(
+          (item.currentRHourly - item.logsheetManual.currentR) || 0
+        );
+        data.totalSelisihVoltageRS += parseFloat(
+          (item.voltageRHourly - item.logsheetManual.voltageRS) || 0
+        );
+        data.count += 1;
     });
 
     let resultData = [];
