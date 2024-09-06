@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 
 const groupByDateAndHour = (data) => {
   return data.reduce((acc, item) => {
-    const date = new Date(item.__EMPTY_1);
+    const date = new Date(item.__EMPTY);
     if (isNaN(date.getTime())) return acc; // Skip item with invalid date value
 
     // Format date as 'Y-m-d H' (e.g., '2024-07-01 00')
@@ -31,17 +31,17 @@ const groupByDateAndHour = (data) => {
       acc[groupKey] = { sumEmpty2: 0, sumEmpty3: 0, sumEmpty4: 0, sumEmpty5: 0, sumEmpty6: 0, sumEmpty7: 0, sumEmpty9: 0, sumEmpty10: 0, sumEmpty11: 0, sumEmpty12: 0, sumEmpty13: 0, count: 0 };
     }
 
-    acc[groupKey].sumEmpty2 += item.__EMPTY_2;
-    acc[groupKey].sumEmpty3 += item.__EMPTY_3;
-    acc[groupKey].sumEmpty4 += item.__EMPTY_4;
-    acc[groupKey].sumEmpty5 += item.__EMPTY_5;
-    acc[groupKey].sumEmpty6 += item.__EMPTY_6;
-    acc[groupKey].sumEmpty7 += item.__EMPTY_7;
-    acc[groupKey].sumEmpty9 += item.__EMPTY_9;
-    acc[groupKey].sumEmpty10 += item.__EMPTY_10;
-    acc[groupKey].sumEmpty11 += item.__EMPTY_11;
-    acc[groupKey].sumEmpty12 += item.__EMPTY_12;
-    acc[groupKey].sumEmpty13 += item.__EMPTY_13;
+    acc[groupKey].sumEmpty2 += item.__EMPTY_1;
+    acc[groupKey].sumEmpty3 += item.__EMPTY_2;
+    acc[groupKey].sumEmpty4 += item.__EMPTY_3;
+    acc[groupKey].sumEmpty5 += item.__EMPTY_4;
+    acc[groupKey].sumEmpty6 += item.__EMPTY_5;
+    acc[groupKey].sumEmpty7 += item.__EMPTY_6;
+    acc[groupKey].sumEmpty9 += item.__EMPTY_8;
+    acc[groupKey].sumEmpty10 += item.__EMPTY_9;
+    acc[groupKey].sumEmpty11 += item.__EMPTY_10;
+    acc[groupKey].sumEmpty12 += item.__EMPTY_11;
+    acc[groupKey].sumEmpty13 += item.__EMPTY_12;
     acc[groupKey].count += 1;
 
     return acc;
@@ -276,7 +276,7 @@ const updateLogsheetDifference = async (results, pelangganId) => {
 
       // Check if a record exists with the same dateTime
       const existingRecord = await LogsheetManualSistemAggregateModel.findOne({ where: { dateTime: formattedDateTime, pelangganId } });
-
+      
       if (existingRecord) {
         // If record exists, update it by summing the existing and new values
         await existingRecord.update({

@@ -6,7 +6,6 @@ const RoleModel = Database.define('roles', {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-        unique: true,
     },
     roleName: {
         type: DataTypes.STRING,

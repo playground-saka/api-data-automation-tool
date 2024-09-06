@@ -28,6 +28,7 @@ const UserRoleModel = Database.define('user_roles', {
     assignedDate: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: new Date(),
     },
 }, {
     timestamps: true,

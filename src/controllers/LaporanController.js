@@ -28,6 +28,7 @@ export const laporanSistem = async (req, res) => {
       where: whereConditions,
       limit: parseInt(per_page),
       offset: parseInt(offset),
+      order: [['dateTime', 'ASC']],
     });
 
     const totalPages = Math.ceil(count / per_page);
@@ -70,6 +71,7 @@ export const laporanManual = async (req, res) => {
       where: whereConditions,
       limit: parseInt(per_page),
       offset: parseInt(offset),
+      order: [['dateTime', 'ASC']],
     });
 
     const totalPages = Math.ceil(count / per_page);
@@ -98,6 +100,7 @@ export const laporanSelisih = async (req, res) => {
         include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
         limit: perPage,
         offset: (page - 1) * perPage,
+        order: [['dateTime', 'ASC']],
       });
 
     const formattedData = rows.map((item) => ({
@@ -177,6 +180,7 @@ export const downloadLaporanSelisih = async (req, res) => {
     const { rows } = await LogsheetManualSistemAggregateModel.findAndCountAll({
       include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
       where: whereConditions,
+      order: [['dateTime', 'ASC']],
     });
 
     const formattedData = rows.map((item) => {

@@ -28,14 +28,9 @@ export const createRole = async (req, res) => {
   }
 };
 
-// Get all data
 export const getAllRole = async (req, res) => {
   try {
-    const roles = await RoleModel.findAll({
-      attributes: {
-        exclude: ["createdAt", "updatedAt"],
-      },
-    });
+    const roles = await RoleModel.findAll();
     res.status(200).json(roles);
   } catch (error) {
     res.status(500).json({ message: error.message });
