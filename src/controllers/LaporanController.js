@@ -95,13 +95,28 @@ export const laporanSelisih = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.per_page) || 10;
 
+    const { date } = req.query;
+    const whereConditions = {};
+    
+    if (date) {
+      const [month, year] = date.split("-");
+      whereConditions.dateTime = {
+        [Op.between]: [
+          new Date(`${year}-${month}-01T00:00:00.000Z`),
+          new Date(`${year}-${month}-31T23:59:59.999Z`),
+        ],
+      };
+    }
+
     const { count, rows } =
       await LogsheetManualSistemAggregateModel.findAndCountAll({
+        where: whereConditions,
         include: [{ model: FactLogsheetManualModel, as: "logsheetManual" }],
         limit: perPage,
         offset: (page - 1) * perPage,
         order: [['dateTime', 'ASC']],
       });
+
 
     const formattedData = rows.map((item) => ({
       id: item.id,
