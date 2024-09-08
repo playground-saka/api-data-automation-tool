@@ -106,6 +106,10 @@ import {
   deleteUserRole,
 } from "../controllers/UserRoleController.js";
 
+import {
+  processRollback,
+} from "../controllers/RollbackController.js";
+
 const router = express.Router();
 
 // Auth routes
@@ -241,5 +245,8 @@ router.get("/user-role", AuthMiddleware, getUserRoles);
 router.get("/user-role/:id", AuthMiddleware, getUserRoleById);
 router.put("/user-role/:id", AuthMiddleware, updateUserRole);
 router.delete("/user-role/:id", AuthMiddleware, deleteUserRole);
+
+// Rollback routes
+router.post("/rollback-logsheet", AuthMiddleware, processRollback);
 
 export default router;
