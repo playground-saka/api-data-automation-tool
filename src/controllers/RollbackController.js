@@ -7,7 +7,7 @@ const processRollbackManual = async (pelangganId, startDate, endDate, res) => {
     const existingLogsheets = await FactLogsheetManualModel.findAll({
         where: {
             pelangganId,
-            datetime: {
+            dateTime: {
             [Op.between]: [startDate, endDate] // All datetimes in the month
             }
         }
@@ -72,7 +72,7 @@ const processRollbackManual = async (pelangganId, startDate, endDate, res) => {
     const destroyLogsheetManual = await FactLogsheetManualModel.destroy({
         where: {
             pelangganId,
-            datetime: {
+            dateTime: {
                 [Op.between]: [startDate, endDate]
             }
         }
@@ -85,7 +85,7 @@ const processRollbackSistem = async (pelangganId, startDate, endDate, res) => {
     const logsheetManualSistem =  await LogsheetManualSistemAggregateModel.findAll({
         where: {
             pelangganId,
-            datetime: {
+            dateTime: {
                 [Op.between]: [startDate, endDate]
             }
         }
@@ -137,7 +137,7 @@ const processRollbackSistem = async (pelangganId, startDate, endDate, res) => {
     const destroyLogsheetSistem = await FactLogsheetSistemModel.destroy({
         where: {
             pelangganId,
-            datetime: {
+            dateTime: {
                 [Op.between]: [startDate, endDate]
             }
         }
