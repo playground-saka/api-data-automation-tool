@@ -185,7 +185,7 @@ export const importFactLogsheetSistem = async (req, res) => {
         const date = new Date(rawDate);
         
         // Add 7 hours (UTC to Local)
-        date.setHours(date.getHours() + 7);
+        // date.setHours(date.getHours() + 7);
 
         // Convert date to Y-m-d H:i:s format
         const year = date.getFullYear();
@@ -263,7 +263,7 @@ const updateLogsheetDifference = async (results, pelangganId) => {
       const dateTime = new Date(localDateTime);
 
        // Add 7 hours (UTC to Local)
-      dateTime.setHours(dateTime.getHours() + 7);
+      // dateTime.setHours(dateTime.getHours() + 7);
 
        // Convert dateTime to Y-m-d H:i:s format
       const year = dateTime.getFullYear();
