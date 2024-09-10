@@ -46,7 +46,7 @@ export const importFactLogsheetManual = async (req, res) => {
         }
 
         // add 7 hours (UTC to Local)
-        // date.setHours(date.getHours() + 7);
+        date.setHours(date.getHours() + 7);
 
         // get value years, month, days
         const year = date.getFullYear();
@@ -61,7 +61,7 @@ export const importFactLogsheetManual = async (req, res) => {
         // convert value to Y-m-d H:i:s
         const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         const formattedDate = `${year}-${month}-${day}`;
-
+        
         // save data to database
         const logManual = await FactLogsheetManualModel.create({
           dateTime: formattedDateTime,

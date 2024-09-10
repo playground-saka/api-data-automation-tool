@@ -9,5 +9,9 @@
  * @returns {number} - The numeric value or 0 if the input is not a valid number.
  */
 export const toNumberOrZero = (value) => {
-    return isNaN(Number(value)) ? 0 : Number(value);
+  if (typeof value === "string") {
+    // Replace comma with dot if value is a string
+    value = value.replace(",", ".");
+  }
+  return isNaN(Number(value)) ? 0 : Number(value);
 };

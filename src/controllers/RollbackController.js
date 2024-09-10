@@ -2,8 +2,10 @@ import FactLogsheetManualModel from "../models/FactLogsheetManualModel.js";
 import FactLogsheetSistemModel from "../models/FactLogsheetSistemModel.js";
 import LogsheetManualSistemAggregateModel from "../models/LogsheetManualSistemAggregateModel.js";
 import { Op } from 'sequelize';
+import LogsheetStatusModel from "../models/LogsheetStatusModel.js";
 
-const processRollbackManual = async (pelangganId, startDate, endDate, res) => {
+const processRollbackManual = async (pelangganId, startDate, endDate, date, res) => {
+
     const existingLogsheets = await FactLogsheetManualModel.findAll({
         where: {
             pelangganId,
@@ -77,11 +79,25 @@ const processRollbackManual = async (pelangganId, startDate, endDate, res) => {
             }
         }
     });
+    
+    const logsheetStatus = await LogsheetStatusModel.findOne({
+      where: {
+        pelangganId,
+        month: new Date(date).getMonth() + 1,
+        years: new Date(date).getFullYear(),
+      },
+    });
+
+    if (logsheetStatus) {
+      logsheetStatus.logsheetManual = 0;
+      await logsheetStatus.save();
+    }
 
     return destroyLogsheetManual;
 };
 
-const processRollbackSistem = async (pelangganId, startDate, endDate, res) => {
+const processRollbackSistem = async (pelangganId, startDate, endDate, date, res) => {
+    
     const logsheetManualSistem =  await LogsheetManualSistemAggregateModel.findAll({
         where: {
             pelangganId,
@@ -101,20 +117,22 @@ const processRollbackSistem = async (pelangganId, startDate, endDate, res) => {
             id,
             logsheetManualId,
         } = logsheet;
-
+        
         if (
             logsheetManualId 
         ) {
             // If any of the fields have values, update logsheetManualId to null
             await LogsheetManualSistemAggregateModel.update(
-                { currentRHourly: null },
-                { currentSHourly: null },
-                { currentTHourly: null },
-                { voltageRHourly: null },
-                { voltageSHourly: null },
-                { voltageTHourly: null },
-                { whExportHourly: null },
-                { varhExportHourly: null },
+                {
+                    currentRHourly: null,
+                    currentSHourly: null,
+                    currentTHourly: null,
+                    voltageRHourly: null,
+                    voltageSHourly: null,
+                    voltageTHourly: null,
+                    whExportHourly: null,
+                    varhExportHourly: null,
+                },
                 {
                     where: {
                         pelangganId,
@@ -143,6 +161,19 @@ const processRollbackSistem = async (pelangganId, startDate, endDate, res) => {
         }
     });
 
+    const logsheetStatus = await LogsheetStatusModel.findOne({
+      where: {
+        pelangganId,
+        month: new Date(date).getMonth() + 1,
+        years: new Date(date).getFullYear(),
+      },
+    });
+
+    if (logsheetStatus) {
+      logsheetStatus.logsheetSistem = 0;
+      await logsheetStatus.save();
+    }
+
     return destroyLogsheetSistem;
 };
 
@@ -159,7 +190,7 @@ export const processRollback = async (req, res) => {
 
         const rollbackProcess = type === 'manual' ? processRollbackManual : processRollbackSistem;
 
-        const destroyLogsheet = await rollbackProcess(pelangganId, startDate, endDate, res);
+        const destroyLogsheet = await rollbackProcess(pelangganId, startDate, endDate, date, res);
 
         res.status(destroyLogsheet ? 200 : 404).json({
             message: destroyLogsheet ? "Logsheet Berhasil di Rollback" : "Logsheet Gagal di Rollback"

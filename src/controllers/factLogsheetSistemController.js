@@ -185,7 +185,7 @@ export const importFactLogsheetSistem = async (req, res) => {
         const date = new Date(rawDate);
         
         // Add 7 hours (UTC to Local)
-        // date.setHours(date.getHours() + 7);
+        date.setHours(date.getHours() + 7);
 
         // Convert date to Y-m-d H:i:s format
         const year = date.getFullYear();
@@ -201,18 +201,18 @@ export const importFactLogsheetSistem = async (req, res) => {
         await FactLogsheetSistemModel.create({
           dateTime: formattedDateTime,
           pelangganId: pelangganId,
-          voltageR: toNumberOrZero(item.__EMPTY_2) || 0,
-          voltageS: toNumberOrZero(item.__EMPTY_3) || 0,
-          voltageT: toNumberOrZero(item.__EMPTY_4) || 0,
-          currentR: toNumberOrZero(item.__EMPTY_5) || 0,
-          currentS: toNumberOrZero(item.__EMPTY_6) || 0,
-          currentT: toNumberOrZero(item.__EMPTY_7) || 0,
-          powerFactor: toNumberOrZero(item.__EMPTY_8) || 0,
-          whExport: toNumberOrZero(item.__EMPTY_9) || 0,
-          varhExport: toNumberOrZero(item.__EMPTY_10) || 0,
-          whImport: toNumberOrZero(item.__EMPTY_11) || 0,
-          varhImport: toNumberOrZero(item.__EMPTY_12) || 0,
-          watt: toNumberOrZero(item.__EMPTY_13) || 0
+          voltageR: toNumberOrZero(item.__EMPTY_1) || 0,
+          voltageS: toNumberOrZero(item.__EMPTY_2) || 0,
+          voltageT: toNumberOrZero(item.__EMPTY_3) || 0,
+          currentR: toNumberOrZero(item.__EMPTY_4) || 0,
+          currentS: toNumberOrZero(item.__EMPTY_5) || 0,
+          currentT: toNumberOrZero(item.__EMPTY_6) || 0,
+          powerFactor: toNumberOrZero(item.__EMPTY_7) || 0,
+          whExport: toNumberOrZero(item.__EMPTY_8) || 0,
+          varhExport: toNumberOrZero(item.__EMPTY_9) || 0,
+          whImport: toNumberOrZero(item.__EMPTY_10) || 0,
+          varhImport: toNumberOrZero(item.__EMPTY_11) || 0,
+          watt: toNumberOrZero(item.__EMPTY_12) || 0
         });
         
          // Todo : Update data logsheetManual in table logsheet_status
@@ -257,13 +257,13 @@ export const importFactLogsheetSistem = async (req, res) => {
 };
 
 const updateLogsheetDifference = async (results, pelangganId) => {
-  try {
+  try {    
     for (const result of results) {
       const localDateTime = `${result.hour}:00:00`;
       const dateTime = new Date(localDateTime);
 
        // Add 7 hours (UTC to Local)
-      // dateTime.setHours(dateTime.getHours() + 7);
+      dateTime.setHours(dateTime.getHours() + 7);
 
        // Convert dateTime to Y-m-d H:i:s format
       const year = dateTime.getFullYear();
@@ -273,39 +273,50 @@ const updateLogsheetDifference = async (results, pelangganId) => {
       const minutes = String(dateTime.getMinutes()).padStart(2, '0');
       const seconds = String(dateTime.getSeconds()).padStart(2, '0');
       const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
       // Check if a record exists with the same dateTime
-      const existingRecord = await LogsheetManualSistemAggregateModel.findOne({ where: { dateTime: formattedDateTime, pelangganId } });
-      
-      if (existingRecord) {
-        // If record exists, update it by summing the existing and new values
-        await existingRecord.update({
-          voltageRHourly: result.voltageR,
-          voltageSHourly: result.voltageS,
-          voltageTHourly: result.voltageT,
-          currentRHourly: result.currentR,
-          currentSHourly: result.currentS,
-          currentTHourly: result.currentT,
-          whExportHourly: result.whExport,
-          varhExportHourly: result.varhExport,
-          // powerFactorDifference: result.whImport,
-          // powerFactorDifference: result.varhImport,
-          // powerFactorDifference: result.watt,
-        });
-      } else {
+      try {
+        const existingRecord = await LogsheetManualSistemAggregateModel.findOne(
+          {
+            where: {
+              dateTime: formattedDateTime,
+              pelangganId: pelangganId,
+            },
+          }
+        );
+
+
+        if (existingRecord) {
+          // If record exists, update it by summing the existing and new values
+          await existingRecord.update({
+            voltageRHourly: toNumberOrZero(result.voltageR) || 0,
+            voltageSHourly: toNumberOrZero(result.voltageS) || 0,
+            voltageTHourly: toNumberOrZero(result.voltageT) || 0,
+            currentRHourly: toNumberOrZero(result.currentR) || 0,
+            currentSHourly: toNumberOrZero(result.currentS) || 0,
+            currentTHourly: toNumberOrZero(result.currentT) || 0,
+            whExportHourly: toNumberOrZero(result.whExport) || 0,
+            varhExportHourly: toNumberOrZero(result.varhExport) || 0,
+            // powerFactorDifference: result.whImport,
+            // powerFactorDifference: result.varhImport,
+            // powerFactorDifference: result.watt,
+          });
+        } else {
           await LogsheetManualSistemAggregateModel.create({
             dateTime: formattedDateTime,
             pelangganId: pelangganId,
-            voltageRHourly: result.voltageR,
-            voltageSHourly: result.voltageS,
-            voltageTHourly: result.voltageT,
-            currentRHourly: result.currentR,
-            currentSHourly: result.currentS,
-            currentTHourly: result.currentT,
-            whExportHourly: result.whExport,
-            varhExportHourly: result.varhExport,
+            voltageRHourly: toNumberOrZero(result.voltageR) || 0,
+            voltageSHourly: toNumberOrZero(result.voltageS) || 0,
+            voltageTHourly: toNumberOrZero(result.voltageT) || 0,
+            currentRHourly: toNumberOrZero(result.currentR) || 0,
+            currentSHourly: toNumberOrZero(result.currentS) || 0,
+            currentTHourly: toNumberOrZero(result.currentT) || 0,
+            whExportHourly: toNumberOrZero(result.whExport) || 0,
+            varhExportHourly: toNumberOrZero(result.varhExport) || 0,
             logsheetManualId: null,
           });
+        }
+      } catch (error) {
+        console.log("error", error);
       }
     }
 
