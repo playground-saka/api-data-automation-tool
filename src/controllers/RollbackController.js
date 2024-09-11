@@ -80,13 +80,14 @@ const processRollbackManual = async (pelangganId, startDate, endDate, date, res)
         }
     });
     
+    const [years, month] = date.split("-");
     const logsheetStatus = await LogsheetStatusModel.findOne({
-      where: {
-        pelangganId,
-        month: new Date(date).getMonth() + 1,
-        years: new Date(date).getFullYear(),
-      },
-    });
+        where: {
+          pelangganId, // Convert back to string
+          month,
+          years,
+        },
+      });
 
     if (logsheetStatus) {
       logsheetStatus.logsheetManual = 0;
@@ -161,13 +162,14 @@ const processRollbackSistem = async (pelangganId, startDate, endDate, date, res)
         }
     });
 
+    const [years, month] = date.split("-");
     const logsheetStatus = await LogsheetStatusModel.findOne({
-      where: {
-        pelangganId,
-        month: new Date(date).getMonth() + 1,
-        years: new Date(date).getFullYear(),
-      },
-    });
+        where: {
+          pelangganId,
+          month,
+          years,
+        },
+      });
 
     if (logsheetStatus) {
       logsheetStatus.logsheetSistem = 0;
@@ -190,11 +192,10 @@ export const processRollback = async (req, res) => {
 
         const rollbackProcess = type === 'manual' ? processRollbackManual : processRollbackSistem;
 
-        const destroyLogsheet = await rollbackProcess(pelangganId, startDate, endDate, date, res);
+        // const destroyLogsheet = await rollbackProcess(pelangganId, startDate, endDate, date, res);
+        await rollbackProcess(pelangganId, startDate, endDate, date, res);
 
-        res.status(destroyLogsheet ? 200 : 404).json({
-            message: destroyLogsheet ? "Logsheet Berhasil di Rollback" : "Logsheet Gagal di Rollback"
-        });
+        res.status(200).json({ message: "Logsheet Berhasil di Rollback" });
 
     } catch (error) {
         res.status(400).json({ message: error.message });
