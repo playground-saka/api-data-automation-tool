@@ -166,6 +166,12 @@ export const importFactLogsheetSistem = async (req, res) => {
     return res.status(400).json({ error: 'No Pelanggan Id.' });
   }
 
+   // Fetch the formula for the customer
+   const formula = await FormulaModel.findOne({ where: { pelangganId} });
+   if (!formula) {
+     return res.status(400).json({ error: 'Formula Not Found.' });
+   }
+
   try {
     const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
 
@@ -234,16 +240,10 @@ export const importFactLogsheetSistem = async (req, res) => {
       }
     });
 
-  await Promise.all(promises);
+    await Promise.all(promises);
 
     // Group data by hour
     const groupedData = groupByDateAndHour(data);
-
-    // Fetch the formula for the customer
-    const formula = await FormulaModel.findOne({ where: { pelangganId} });
-    if (!formula) {
-      return res.status(400).json({ error: 'Formula Not Found.' });
-    }
 
     // Transform the grouped data using the formula
     const results = transformData(groupedData, formula);
