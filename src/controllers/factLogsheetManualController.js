@@ -46,7 +46,7 @@ export const importFactLogsheetManual = async (req, res) => {
         }
 
         // add 7 hours (UTC to Local)
-        date.setHours(date.getHours() + 7);
+        // date.setHours(date.getHours() + 7);
 
         // get value years, month, days
         const year = date.getFullYear();
