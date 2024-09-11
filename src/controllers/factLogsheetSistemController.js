@@ -159,17 +159,17 @@ export const importFactLogsheetSistem = async (req, res) => {
   const pelangganId = req.body.pelangganId;
 
   if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded.' });
+    return res.status(400).json({ message: 'Tidak ada file yang diupload.' });
   }
 
   if (!pelangganId) {
-    return res.status(400).json({ error: 'No Pelanggan Id.' });
+    return res.status(400).json({ message: 'Tidak ada Pelanggan Id.' });
   }
 
    // Fetch the formula for the customer
    const formula = await FormulaModel.findOne({ where: { pelangganId} });
    if (!formula) {
-     return res.status(400).json({ error: 'Formula Not Found.' });
+     return res.status(400).json({ message: 'Formula tidak ditemukan.' });
    }
 
   try {

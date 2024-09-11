@@ -17,11 +17,11 @@ export const importFactLogsheetManual = async (req, res) => {
   const pelangganId = req.body.pelangganId;
 
   if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded.' });
+    return res.status(400).json({ message: 'No file uploaded.' });
   }
 
   if (!pelangganId) {
-    return res.status(400).json({ error: 'No Pelanggan Id.' });
+    return res.status(400).json({ message: 'No Pelanggan Id.' });
   }
 
   try {
