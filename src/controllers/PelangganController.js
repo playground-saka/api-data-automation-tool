@@ -58,6 +58,7 @@ export const getAllDimPelanggan = async (req, res) => {
         attributes: ["id", "pelangganId", "namaPelanggan", "statusPelanggan"],
         limit: perPage,
         offset: offset,
+        order: [['id', 'ASC']],
       }
     );
 
