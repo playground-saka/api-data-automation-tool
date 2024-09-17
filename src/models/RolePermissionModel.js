@@ -31,9 +31,12 @@ const RolePermission = Database.define('role_permissions', {
 });
 
 RolePermission.belongsTo(RoleModel, { foreignKey: 'roleId' });
-RoleModel.hasMany(RolePermission, { foreignKey: 'roleId' });
+
+RoleModel.hasMany(RolePermission, { foreignKey: 'roleId',as:'rolePermissions' });
+RoleModel.belongsToMany(Permission, { through: RolePermission, foreignKey: 'roleId', otherKey: 'permissionId',as: 'permissions' });
 
 RolePermission.belongsTo(Permission, { foreignKey: 'permissionId' });
-Permission.hasMany(RolePermission, { foreignKey: 'permissionId' });
+Permission.hasMany(RolePermission, { foreignKey: "permissionId" });
+Permission.hasOne(RolePermission, { foreignKey: "permissionId",as:"rolePermission" });
 
 export default RolePermission;

@@ -188,13 +188,12 @@ export const downloadLaporanSelisih = async (req, res) => {
     };
 
     if (date) {
-      // const [month, year] = date.split("-");
-      const startDate = new Date(`${date}-01T00:00:00`); // Start of the month
-      const endDate = new Date(startDate);
-      endDate.setMonth(startDate.getMonth() + 1); // Move to the next month
-
+      const [month, year] = date.split("-");
       whereConditions.dateTime = {
-        [Op.between]: [startDate, endDate] // All datetimes in the month
+        [Op.between]: [
+          new Date(`${year}-${month}-01T00:00:00.000Z`),
+          new Date(`${year}-${month}-31T23:59:59.999Z`),
+        ],
       };
     }
 
@@ -214,22 +213,22 @@ export const downloadLaporanSelisih = async (req, res) => {
         }) + ` Pukul ${date.toLocaleTimeString("id-ID", { hour12: false })}`;
 
       return {
-          Tanggal: formattedDate,
-          "Power P Wilis": item.whExportHourly ?? 0,
-          "Power P Log Manual": item?.logsheetManual?.totalPowerP ?? 0,
-          "Power P Selisih": (
-              (item?.whExportHourly ?? 0) - (item?.logsheetManual?.totalPowerP ?? 0)
-          ).toFixed(2),
-          "Current R Wilis": item?.currentRHourly ?? 0,
-          "Current R Log Manual": item?.logsheetManual?.currentR ?? 0,
-          "Current R Selisih": (
-              (item?.currentRHourly ?? 0) - (item?.logsheetManual?.currentR ?? 0)
-          ).toFixed(2),
-          "Voltage RS Wilis": item?.voltageRHourly ?? 0,
-          "Voltage RS Log Manual": item?.logsheetManual?.voltageRS ?? 0,
-          "Voltage RS Selisih": (
-              (item?.voltageRHourly ?? 0) - (item?.logsheetManual?.voltageRS ?? 0)
-          ).toFixed(2),
+        Tanggal: formattedDate,
+        "Power P Wilis": item.whExportHourly,
+        "Power P Log Manual": item.logsheetManual.totalPowerP,
+        "Power P Selisih": (
+          item.whExportHourly - item.logsheetManual.totalPowerP
+        ).toFixed(2),
+        "Current R Wilis": item.currentRHourly,
+        "Current R Log Manual": item.logsheetManual.currentR,
+        "Current R Selisih": (
+          item.currentRHourly - item.logsheetManual.currentR
+        ).toFixed(2),
+        "Voltage RS Wilis": item.voltageRHourly,
+        "Voltage RS Log Manual": item.logsheetManual.voltageRS,
+        "Voltage RS Selisih": (
+          item.voltageRHourly - item.logsheetManual.voltageRS
+        ).toFixed(2),
       };
     });
 

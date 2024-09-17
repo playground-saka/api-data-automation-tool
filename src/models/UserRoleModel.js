@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import Database from "../configs/Database.js";
 import User from './UserModel.js';
 import RoleModel from './RoleModel.js';
+import UserModel from './UserModel.js';
 
 const UserRoleModel = Database.define('user_roles', {
     id: {
@@ -35,10 +36,28 @@ const UserRoleModel = Database.define('user_roles', {
     tableName: 'user_roles',
 });
 
-UserRoleModel.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(UserRoleModel, { foreignKey: 'userId' });
+UserRoleModel.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+UserModel.hasMany(UserRoleModel, { foreignKey: 'userId', as: 'userRoles' });
 
-UserRoleModel.belongsTo(RoleModel, { foreignKey: 'roleId' });
-RoleModel.hasMany(UserRoleModel, { foreignKey: 'roleId' });
+// UserRoleModel.belongsTo(RoleModel, { foreignKey: 'roleId',as: 'role' });
+
+UserModel.belongsToMany(RoleModel, {
+  through: UserRoleModel,
+  foreignKey: "userId",
+  as: "roles",
+});
+UserModel.belongsToMany(RoleModel, {
+  through: UserRoleModel, // Name of the join table
+  as: "role",
+  foreignKey: "userId",
+});
+
+RoleModel.belongsToMany(UserModel, {
+  through: UserRoleModel, // Name of the join table
+  as: "users",
+  foreignKey: "roleId", // Foreign key in the join table
+});
+
+
 
 export default UserRoleModel;
