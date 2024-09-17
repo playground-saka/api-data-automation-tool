@@ -1,5 +1,6 @@
 import PelangganModel from "../models/PelangganModel.js";
 import DimKategori from "../models/KategoriModel.js";
+import { Op } from "sequelize";
 
 // Create
 export const createDimPelanggan = async (req, res) => {
@@ -42,25 +43,34 @@ export const getAllPelanggan = async (req, res) => {
 // Read with pagination
 export const getAllDimPelanggan = async (req, res) => {
   try {
+    const search = req.query.search || '';
     const page = parseInt(req.query.page, 10) || 1;
     const perPage = parseInt(req.query.per_page, 10) || 10;
     const offset = (page - 1) * perPage;
 
-    const { count, rows: pelangganList } = await PelangganModel.findAndCountAll(
-      {
-        include: [
-          {
-            model: DimKategori,
-            attributes: ["id", "namaKategori", "statusKategori"],
-            as: "kategori",
-          },
+    const whereClause = search
+    ? {
+        [Op.or]: [
+          { pelangganId: { [Op.iLike]: `%${search}%` } },
+          { namaPelanggan: { [Op.iLike]: `%${search}%` } },
+          { '$kategori.namaKategori$': { [Op.iLike]: `%${search}%` } },
         ],
-        attributes: ["id", "pelangganId", "namaPelanggan", "statusPelanggan"],
-        limit: perPage,
-        offset: offset,
-        order: [['id', 'ASC']],
       }
-    );
+    : {};
+
+    const { count, rows: pelangganList } = await PelangganModel.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: DimKategori,
+          attributes: ["id", "namaKategori", "statusKategori"],
+          as: "kategori",
+        },
+      ],
+      attributes: ["id", "pelangganId", "namaPelanggan", "statusPelanggan"],
+      limit: perPage,
+      offset: offset,
+    });
 
     const totalPages = Math.ceil(count / perPage);
     const nextPage = page < totalPages ? page + 1 : null;
@@ -94,8 +104,15 @@ export const getAllDimPelanggan = async (req, res) => {
 export const getDimPelangganById = async (req, res) => {
   try {
     const pelanggan = await PelangganModel.findByPk(req.params.id, {
-      include: ["DimKategori"],
+      include: [
+        {
+          model: DimKategori,
+          attributes: ["id", "namaKategori", "statusKategori"],
+          as: "kategori"
+        }
+      ],
     });
+    console.log(pelanggan);
     if (pelanggan) {
       res.status(200).json(pelanggan);
     } else {
@@ -113,28 +130,18 @@ export const updateDimPelanggan = async (req, res) => {
     const { namaPelanggan, kategoriId, statusPelanggan, pelangganId } =
       req.body;
 
-    // Validate required fields
-    if (!kategoriId || !statusPelanggan) {
-      return res.status(400).json({
-        message: "kategoriId and statusPelanggan are required",
-      });
-    }
-
-    // Find the pelanggan by ID
     const pelanggan = await PelangganModel.findByPk(id);
 
-    // Check if pelanggan exists
     if (!pelanggan) {
       return res.status(404).json({ message: "Pelanggan not found" });
     }
 
-    // Update pelanggan fields
-    pelanggan.namaPelanggan = namaPelanggan;
-    pelanggan.kategoriId = kategoriId;
-    pelanggan.statusPelanggan = statusPelanggan;
-    pelanggan.pelangganId = pelangganId;
+    if (namaPelanggan !== undefined) pelanggan.namaPelanggan = namaPelanggan;
+    if (kategoriId !== undefined) pelanggan.kategoriId = kategoriId;
+    if (statusPelanggan !== undefined)
+      pelanggan.statusPelanggan = statusPelanggan;
+    if (pelangganId !== undefined) pelanggan.pelangganId = pelangganId;
 
-    // Save the updated pelanggan
     await pelanggan.save();
 
     res.status(200).json(pelanggan);
@@ -161,3 +168,4 @@ export const deleteDimPelanggan = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+

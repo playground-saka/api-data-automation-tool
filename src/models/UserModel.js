@@ -27,7 +27,6 @@ const UserModel = Database.define('users', {
     },
     isActive: {
         type: DataTypes.BOOLEAN,
-        defaultValue: true, 
         allowNull: false,
     },
 }, {

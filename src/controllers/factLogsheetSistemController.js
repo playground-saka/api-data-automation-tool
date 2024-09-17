@@ -245,6 +245,12 @@ export const importFactLogsheetSistem = async (req, res) => {
     // Group data by hour
     const groupedData = groupByDateAndHour(data);
 
+    // Fetch the formula for the customer
+    const formula = await FormulaModel.findOne({ where: { pelangganId} });
+    if (!formula) {
+      return res.status(400).json({ message: 'Formula Not Found.' });
+    }
+
     // Transform the grouped data using the formula
     const results = transformData(groupedData, formula);
     updateLogsheetDifference(results, pelangganId);
@@ -252,7 +258,7 @@ export const importFactLogsheetSistem = async (req, res) => {
     res.status(201).json({ message: 'Data processed and inserted successfully!' });
   } catch (error) {
     console.error('Error processing file and inserting data:', error);
-    res.status(500).json({ error: 'Error processing file and inserting data.' });
+    res.status(500).json({ message: 'Error processing file and inserting data.' });
   }
 };
 

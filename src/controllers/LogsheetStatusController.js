@@ -1,12 +1,13 @@
 import LogsheetStatusModel from "../models/LogsheetStatusModel.js";
 import PelangganModel from "../models/PelangganModel.js";
 import KategoriModel from "../models/KategoriModel.js";
+import { Op } from 'sequelize';
 
-export const getLogsheetStatus = async (req, res) => {
+export const getLogsheetStatusOld = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const perPage = parseInt(req.query.per_page, 10) || 10;
-    const date = req.query.date; 
+    const date = req.query.date;
 
     const offset = (page - 1) * perPage;
 
@@ -75,6 +76,94 @@ export const getLogsheetStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching logsheet statuses:", error);
+    res.status(500).json({ message: "Error fetching logsheet statuses" });
+  }
+};
+
+export const getLogsheetStatus = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+    const page = parseInt(req.query.page, 10) || 1;
+    const perPage = parseInt(req.query.per_page, 10) || 10;
+    const date = req.query.date; 
+
+    const offset = (page - 1) * perPage;
+
+    const whereClause = search
+      ? {
+          [Op.or]: [
+            { '$pelanggan.namaPelanggan$': { [Op.iLike]: `%${search}%` } },
+          ],
+        }
+      : {};
+
+    const queryOptions = {
+      where: whereClause,
+      attributes: { exclude: ["pelangganId"] },
+      include: [
+        {
+          model: PelangganModel,
+          as: "pelanggan",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: KategoriModel,
+              as: "kategori",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        },
+      ],
+      limit: perPage,
+      offset: offset,
+    };
+
+    if (date) {
+      const [month, year] = date.split("-");
+      if (
+        !month ||
+        !year ||
+        isNaN(month) ||
+        isNaN(year) ||
+        month.length !== 2 ||
+        year.length !== 4
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Invalid date format. Use MM-YYYY format." });
+      }
+
+      queryOptions.where = {
+        ...queryOptions.where,
+        month,
+        years: year,
+      };
+    }
+
+    const { count, rows } = await LogsheetStatusModel.findAndCountAll(
+      queryOptions
+    );
+
+    const totalItems = count;
+    const totalPages = Math.ceil(totalItems / perPage);
+    const nextPage = page < totalPages ? page + 1 : null;
+    const prevPage = page > 1 ? page - 1 : null;
+
+    res.json({
+      data: rows,
+      current_page: page,
+      per_page: perPage,
+      total_items: totalItems,
+      total_pages: totalPages,
+      next_page: nextPage,
+      prev_page: prevPage,
+    });
+  } catch (error) {
+    console.error("Error fetching logsheet statuses:", error);
     res.status(500).json({ error: "Error fetching logsheet statuses" });
   }
 };
@@ -110,7 +199,7 @@ export const detailLogsheetStatus = async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching logsheet status:", error);
-    res.status(500).json({ error: "Error fetching logsheet status" });
+    res.status(500).json({ message: "Error fetching logsheet status" });
   }
 };
 
@@ -121,6 +210,9 @@ export const createLogsheetStatus = async (req, res) => {
     const [years, month] = fullDate.split("-");
 
     const pelanggans = await PelangganModel.findAll({
+      where: {
+        statusPelanggan: true,
+      },
       attributes: ["id", "pelangganId"],
     });
 
@@ -139,7 +231,6 @@ export const createLogsheetStatus = async (req, res) => {
 
     const logsheetStatuses = await Promise.all(
       pelanggans.map(async (pelanggan) => {
-
         // Cek logsheet status has data where pelangganId, month, dan years
         const existingLogsheetStatus = await LogsheetStatusModel.findOne({
           where: {
@@ -250,6 +341,6 @@ export const filterLogsheetStatusByDate = async (req, res) => {
     res.json(logsheetStatuses);
   } catch (error) {
     console.error("Error fetching logsheet statuses by date:", error);
-    res.status(500).json({ error: "Error fetching logsheet statuses" });
+    res.status(500).json({ message: "Error fetching logsheet statuses" });
   }
 };

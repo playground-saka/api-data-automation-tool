@@ -119,7 +119,7 @@ export const importFactLogsheetManual = async (req, res) => {
     res.status(201).json({ message: 'Data processed and inserted successfully!' });
   } catch (error) {
     console.error('Error processing file and inserting data:', error);
-    res.status(500).json({ error: 'Error processing file and inserting data.' });
+    res.status(500).json({ message: 'Error processing file and inserting data.' });
   }
 };
 

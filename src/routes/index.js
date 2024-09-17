@@ -80,23 +80,9 @@ import {
   getAllRole,
   updateRole,
   deleteRole,
-} from "../controllers/RoleController.js";
-
-import {
-  createRolePermission,
-  getRolePermissions,
-  deleteRolePermission,
-  getRolePermissionById,
   updateRolePermission,
-} from "../controllers/RolePermissionController.js";
-
-import {
-  createPermission,
-  getPermissions,
-  deletePermission,
-  getPermissionById,
-  updatePermission,
-} from "../controllers/PermissionController.js";
+  getRole,
+} from "../controllers/RoleController.js";
 
 import {
   createUserRole,
@@ -109,6 +95,9 @@ import {
 import {
   processRollback,
 } from "../controllers/RollbackController.js";
+import { getPermissions } from "../controllers/PermissionController.js";
+
+
 
 const router = express.Router();
 
@@ -221,23 +210,11 @@ router.get("/laporan-grafik-selisih", AuthMiddleware, laporanGrafikSelisih);
 
 // Role routes
 router.post("/role", AuthMiddleware, createRole);
-router.get("/role", AuthMiddleware, getAllRole);
+router.get("/role", AuthMiddleware, getRole);
+router.get("/role-all", AuthMiddleware, getAllRole);
 router.put("/role/:id", AuthMiddleware, updateRole);
 router.delete("/role/:id", AuthMiddleware, deleteRole);
-
-// Role Permission routes
-router.post("/role-permission", AuthMiddleware, createRolePermission);
-router.get("/role-permission", AuthMiddleware, getRolePermissions);
-router.get("/role-permission/:id", AuthMiddleware, getRolePermissionById);
 router.put("/role-permission/:id", AuthMiddleware, updateRolePermission);
-router.delete("/role-permission/:id", AuthMiddleware, deleteRolePermission);
-
-// Permission routes
-router.post("/permission", AuthMiddleware, createPermission);
-router.get("/permission", AuthMiddleware, getPermissions);
-router.get("/permission/:id", AuthMiddleware, getPermissionById);
-router.put("/permission/:id", AuthMiddleware, updatePermission);
-router.delete("/permission/:id", AuthMiddleware, deletePermission);
 
 // User Role routes
 router.post("/user-role", AuthMiddleware, createUserRole);
@@ -248,5 +225,9 @@ router.delete("/user-role/:id", AuthMiddleware, deleteUserRole);
 
 // Rollback routes
 router.post("/rollback-logsheet", AuthMiddleware, processRollback);
+
+// Permission Routes
+router.get("/permission", AuthMiddleware, getPermissions);
+router.get("/permission", AuthMiddleware, getPermissions);
 
 export default router;
